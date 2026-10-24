@@ -1,33 +1,25 @@
 <template>
   <div class="app" :class="{ 'side-hidden': !sideOpen }">
 
-    <Sidebar @sheet-selected="onSheetSelected" />
+    <Sidebar @sheet-selected="sideOpen = false" />
 
     <div class="workspace">
-      <!-- topbar — always visible, desktop + mobile -->
+
+      <!-- topbar -->
       <div class="topbar">
         <button class="ico" @click="sideOpen = !sideOpen" title="Toggle sidebar">
           <span class="bars"></span>
         </button>
-
-        <div class="breadcrumb">
-          <span v-if="activeFolder" class="bc-folder">{{ activeFolder.name }}</span>
-          <span v-if="activeFolder && activeSheet" class="bc-sep">›</span>
-          <span v-if="activeSheet" class="bc-sheet">{{ activeSheet.name }}</span>
-          <span v-if="store.view === 'calendar'" class="bc-sheet">Calendar</span>
+        <div class="topbar-title">
+          <span v-if="activeSheet && store.view === 'sheet'">{{ activeSheet.name }}</span>
+          <span v-else-if="store.view === 'calendar'">Calendar</span>
+          <span v-else-if="activeFolder">{{ activeFolder.name }}</span>
+          <span v-else>Sheets</span>
         </div>
-
         <div class="topbar-actions">
-          <button
-            class="tb-pill"
-            :class="{ active: store.view === 'sheet' }"
-            @click="store.view = 'sheet'"
-          >Sheets</button>
-          <button
-            class="tb-pill"
-            :class="{ active: store.view === 'calendar' }"
-            @click="store.view = 'calendar'"
-          >Calendar</button>
+          <!-- desktop view toggle -->
+          <button class="tb-pill" :class="{ active: store.view === 'sheet' }" @click="store.view = 'sheet'">Sheets</button>
+          <button class="tb-pill" :class="{ active: store.view === 'calendar' }" @click="store.view = 'calendar'">Calendar</button>
         </div>
       </div>
 
@@ -35,9 +27,27 @@
         <SheetView v-if="store.view === 'sheet'" />
         <CalendarView v-else />
       </main>
+
+      <!-- mobile bottom tab bar -->
+      <nav class="tab-bar">
+        <button class="tab" :class="{ active: store.view === 'sheet' }" @click="store.view = 'sheet'">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 9h6M9 13h6M9 17h4"/>
+          </svg>
+          <span>Sheets</span>
+        </button>
+        <button class="tab" :class="{ active: store.view === 'calendar' }" @click="store.view = 'calendar'">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          <span>Calendar</span>
+        </button>
+      </nav>
     </div>
 
-    <!-- mobile backdrop -->
+    <!-- mobile sidebar backdrop -->
     <div v-if="sideOpen && isMobile" class="scrim" @click="sideOpen = false"></div>
   </div>
 </template>
@@ -67,16 +77,10 @@ const activeFolder = computed(() =>
   store.folders.find(f => f.id === store.activeFolderId) || null
 )
 const activeSheet = computed(() =>
-  store.view === 'sheet'
-    ? store.sheets.find(s => s.id === store.activeSheetId) || null
-    : null
+  store.sheets.find(s => s.id === store.activeSheetId) || null
 )
 
-function onSheetSelected() {
-  if (isMobile.value) sideOpen.value = false
-}
-
-// theme + palette → <html> data attributes
+// theme + palette → html attributes
 const mq = window.matchMedia('(prefers-color-scheme: dark)')
 function applyTheme() {
   const dark = store.theme === 'dark' || (store.theme === 'auto' && mq.matches)
