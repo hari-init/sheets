@@ -553,17 +553,7 @@ body {
 /* delete-btn: only in detail on mobile */
 .delete-btn       { display: none; }
 
-/* ── detail field chips (tappable, trigger hidden native picker) ── */
-.picker-ghost {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  top: 0; left: 0;
-}
-
+/* ── detail field chips ── */
 .detail-fields {
   display: flex;
   align-items: center;
@@ -587,9 +577,25 @@ body {
   min-width: 68px;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  overflow: hidden;
 }
 .field-chip:hover { border-color: var(--ink-faint); }
 .field-chip:active { border-color: var(--accent); background: var(--accent-wash); }
+
+/* invisible native picker overlaid on chip — tap chip = tap input */
+.picker-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+}
 
 .field-chip-label {
   font-size: 9px;
@@ -597,6 +603,7 @@ body {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faint);
+  pointer-events: none;
 }
 
 .field-chip-val {
@@ -604,6 +611,7 @@ body {
   font-size: 12px;
   color: var(--ink);
   white-space: nowrap;
+  pointer-events: none;
 }
 .field-chip-val.empty { color: var(--ink-faint); }
 
@@ -651,19 +659,21 @@ body {
 .format-bar button:hover { background: var(--rule-soft); color: var(--ink); }
 .format-bar .sep { color: var(--rule); margin: 0 2px; }
 
-.description-editor {
+.description-area {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--ink);
-  min-height: 56px;
+  background: none;
+  border: none;
   outline: none;
+  width: 100%;
+  resize: none;
   line-height: 1.7;
+  min-height: 56px;
+  padding: 4px 0;
 }
-.description-editor:empty::before {
-  content: attr(data-placeholder);
-  color: var(--ink-faint);
-  pointer-events: none;
-}
+.description-area::placeholder { color: var(--ink-faint); }
+.description-area:focus { color: var(--ink); }
 
 .item-row.done .item-main { opacity: 0.55; }
 
@@ -980,18 +990,19 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
     background: none;
     border: none;
-    color: var(--ink-faint);
+    color: var(--ink-soft);
     cursor: pointer;
-    border-radius: 8px;
-    margin-top: -4px;
+    border-radius: 10px;
+    margin-top: -6px;
     -webkit-tap-highlight-color: transparent;
   }
-  .item-chevron:active { background: var(--rule-soft); }
+  .item-chevron svg { width: 22px; height: 22px; }
+  .item-chevron:active { background: var(--rule-soft); color: var(--ink); }
 
   /* ── expanded detail ── */
   .item-detail {
@@ -1005,18 +1016,19 @@ body {
   }
 
   .field-chip {
-    padding: 10px 14px;
-    min-width: 80px;
-    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 88px;
+    border-radius: 10px;
   }
-  .field-chip-val { font-size: 15px; }
-  .field-chip-label { font-size: 10px; }
+  .field-chip-val { font-size: 16px; }
+  .field-chip-label { font-size: 10px; letter-spacing: 0.18em; }
 
   .delete-chip {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
   }
+  .delete-chip svg { width: 22px; height: 22px; }
 
   .item-detail-meta {
     display: flex;
@@ -1074,18 +1086,10 @@ body {
   }
   .delete-btn:active { color: var(--accent); border-color: var(--accent); }
 
-  /* format bar */
-  .format-bar {
-    overflow-x: auto;
-    scrollbar-width: none;
-    flex-wrap: nowrap;
-    gap: 4px;
-    padding: 8px 0;
-  }
-  .format-bar::-webkit-scrollbar { display: none; }
-  .format-bar button { padding: 8px 14px; font-size: 14px; white-space: nowrap; min-height: 40px; border-radius: 6px; }
 
-  .description-editor { font-size: 15px; min-height: 80px; padding-top: 6px; }
+  /* 16px minimum prevents iOS auto-zoom on input focus */
+  .item-text, .sheet-title, .sheet-description, .description-area, input, textarea { font-size: 16px; }
+  .description-area { min-height: 80px; padding-top: 6px; line-height: 1.6; }
 
   .add-item-btn { padding: 18px 0; font-size: 14px; width: 100%; text-align: left; }
 
