@@ -2,11 +2,10 @@
   <div class="item-row" :class="{ done: item.done, expanded: open }">
 
     <div class="item-main">
-      <button class="checkbox" @click.stop="toggleItem(item.id)" aria-label="Toggle done">
+      <button class="checkbox" @click.stop="toggleItem(item.id)">
         <span v-if="item.done">✓</span>
       </button>
 
-      <!-- body: tapping expands/collapses -->
       <div class="item-body" @click="open = !open">
         <input
           class="item-text"
@@ -18,15 +17,14 @@
           @keydown.enter.prevent="$emit('new-below')"
           @keydown.backspace="onBackspace"
         />
-        <!-- compact date/time hint below text — only when values are set -->
         <span
           v-if="localDate || localTimeFrom"
           class="item-date-chip"
           :class="{ 'has-date': localDate }"
-        >{{ localDate }}{{ localDate && localTimeFrom ? ' · ' : '' }}{{ localTimeFrom }}{{ localTimeTo ? ' → ' + localTimeTo : '' }}</span>
+        >{{ localDate ? fmtDate(localDate) : '' }}{{ localDate && localTimeFrom ? ' · ' : '' }}{{ localTimeFrom }}{{ localTimeTo ? ' → ' + localTimeTo : '' }}</span>
       </div>
 
-      <!-- desktop: inline meta -->
+      <!-- desktop meta -->
       <div class="item-meta" @click.stop>
         <input type="date" class="meta-input" v-model="localDate" @change="save" />
         <div class="time-range">
@@ -34,40 +32,50 @@
           <span class="time-sep">→</span>
           <input type="time" class="meta-input" v-model="localTimeTo" @change="save" />
         </div>
-        <button class="icon-btn" title="Delete" @click.stop="deleteItem(item.id)">
+        <button class="icon-btn" @click.stop="deleteItem(item.id)">
           <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3.5 4.5h9M6 4.5V3h4v1.5M6.5 7v5M9.5 7v5M4.5 4.5l.5 8h6l.5-8"/>
           </svg>
         </button>
       </div>
 
-      <!-- mobile: chevron tap target -->
-      <button class="item-chevron" @click="open = !open" :aria-label="open ? 'Collapse' : 'Expand'">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <button class="item-chevron" @click="open = !open">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path v-if="!open" d="M5.5 6.5 8 9l2.5-2.5"/>
-          <path v-else d="M5.5 9.5 8 7l2.5 2.5"/>
+          <path v-else        d="M5.5 9.5 8 7l2.5 2.5"/>
         </svg>
       </button>
     </div>
 
-    <!-- expanded detail -->
     <div v-if="open" class="item-detail" @click.stop>
 
-      <!-- mobile full meta -->
-      <div class="item-detail-meta">
-        <label class="field-group">
-          <span class="field-label">DATE</span>
-          <input type="date" class="field-input" v-model="localDate" @change="save" />
-        </label>
-        <label class="field-group">
-          <span class="field-label">FROM</span>
-          <input type="time" class="field-input" v-model="localTimeFrom" @change="save" />
-        </label>
-        <label class="field-group">
-          <span class="field-label">TO</span>
-          <input type="time" class="field-input" v-model="localTimeTo" @change="save" />
-        </label>
-        <button class="delete-btn" @click.stop="deleteItem(item.id)" title="Delete task">
+      <!-- mobile: tappable field chips that trigger native pickers -->
+      <div class="detail-fields">
+        <div class="field-chip" @click="tap(dateRef)">
+          <span class="field-chip-label">DATE</span>
+          <span class="field-chip-val" :class="{ empty: !localDate }">
+            {{ localDate ? fmtDate(localDate) : 'None' }}
+          </span>
+          <input ref="dateRef" type="date" v-model="localDate" @change="save" class="picker-ghost" tabindex="-1" />
+        </div>
+
+        <div class="field-chip" @click="tap(fromRef)">
+          <span class="field-chip-label">FROM</span>
+          <span class="field-chip-val" :class="{ empty: !localTimeFrom }">
+            {{ localTimeFrom || '—' }}
+          </span>
+          <input ref="fromRef" type="time" v-model="localTimeFrom" @change="save" class="picker-ghost" tabindex="-1" />
+        </div>
+
+        <div class="field-chip" @click="tap(toRef)">
+          <span class="field-chip-label">TO</span>
+          <span class="field-chip-val" :class="{ empty: !localTimeTo }">
+            {{ localTimeTo || '—' }}
+          </span>
+          <input ref="toRef" type="time" v-model="localTimeTo" @change="save" class="picker-ghost" tabindex="-1" />
+        </div>
+
+        <button class="delete-chip" @click.stop="deleteItem(item.id)">
           <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3.5 4.5h9M6 4.5V3h4v1.5M6.5 7v5M9.5 7v5M4.5 4.5l.5 8h6l.5-8"/>
           </svg>
@@ -110,6 +118,9 @@ const localDate = ref(props.item.dueDate)
 const localTimeFrom = ref(props.item.timeFrom || '')
 const localTimeTo = ref(props.item.timeTo || '')
 const editor = ref(null)
+const dateRef = ref(null)
+const fromRef = ref(null)
+const toRef  = ref(null)
 
 onMounted(() => {
   if (editor.value && props.item.description) {
@@ -117,15 +128,14 @@ onMounted(() => {
   }
 })
 
-watch(() => props.item.text, v => { localText.value = v })
-watch(() => props.item.dueDate, v => { localDate.value = v })
+watch(() => props.item.text,     v => { localText.value = v })
+watch(() => props.item.dueDate,  v => { localDate.value = v })
 watch(() => props.item.timeFrom, v => { localTimeFrom.value = v || '' })
-watch(() => props.item.timeTo, v => { localTimeTo.value = v || '' })
+watch(() => props.item.timeTo,   v => { localTimeTo.value = v || '' })
 watch(open, val => {
   if (val) nextTick(() => {
-    if (editor.value && props.item.description && !editor.value.innerHTML) {
+    if (editor.value && props.item.description && !editor.value.innerHTML)
       editor.value.innerHTML = props.item.description
-    }
   })
 })
 
@@ -153,5 +163,18 @@ function onBackspace(e) {
 function exec(cmd) {
   document.execCommand(cmd, false, null)
   editor.value?.focus()
+}
+
+// trigger the hidden native picker
+function tap(inputRef) {
+  const el = inputRef?.value
+  if (!el) return
+  try { el.showPicker() } catch { el.click() }
+}
+
+function fmtDate(str) {
+  if (!str) return ''
+  const d = new Date(str + 'T12:00:00')
+  return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 </script>

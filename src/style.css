@@ -553,6 +553,76 @@ body {
 /* delete-btn: only in detail on mobile */
 .delete-btn       { display: none; }
 
+/* ── detail field chips (tappable, trigger hidden native picker) ── */
+.picker-ghost {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  top: 0; left: 0;
+}
+
+.detail-fields {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.field-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 11px;
+  background: var(--sunk);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 68px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.field-chip:hover { border-color: var(--ink-faint); }
+.field-chip:active { border-color: var(--accent); background: var(--accent-wash); }
+
+.field-chip-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.field-chip-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.field-chip-val.empty { color: var(--ink-faint); }
+
+.delete-chip {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+.delete-chip:hover { color: var(--accent); border-color: var(--accent); }
+.delete-chip:active { color: var(--accent); }
+
 /* expanded detail */
 .item-detail {
   padding: 4px 0 12px 28px;
@@ -927,6 +997,25 @@ body {
   .item-detail {
     padding: 0 0 18px 38px;
     border-top: 1px solid var(--rule-soft);
+  }
+
+  .detail-fields {
+    gap: 8px;
+    padding: 14px 0;
+  }
+
+  .field-chip {
+    padding: 10px 14px;
+    min-width: 80px;
+    border-radius: 8px;
+  }
+  .field-chip-val { font-size: 15px; }
+  .field-chip-label { font-size: 10px; }
+
+  .delete-chip {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
   }
 
   .item-detail-meta {
