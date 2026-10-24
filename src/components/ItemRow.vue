@@ -1,12 +1,12 @@
 <template>
   <div class="item-row" :class="{ done: item.done, expanded: open }">
 
-    <!-- collapsed row -->
     <div class="item-main">
       <button class="checkbox" @click.stop="toggleItem(item.id)" aria-label="Toggle done">
         <span v-if="item.done">✓</span>
       </button>
 
+      <!-- body: tapping expands/collapses -->
       <div class="item-body" @click="open = !open">
         <input
           class="item-text"
@@ -18,11 +18,11 @@
           @keydown.enter.prevent="$emit('new-below')"
           @keydown.backspace="onBackspace"
         />
-        <!-- mobile: compact date chip under text -->
+        <!-- compact date/time hint below text — only when values are set -->
         <span
+          v-if="localDate || localTimeFrom"
           class="item-date-chip"
           :class="{ 'has-date': localDate }"
-          v-if="localDate || localTimeFrom"
         >{{ localDate }}{{ localDate && localTimeFrom ? ' · ' : '' }}{{ localTimeFrom }}{{ localTimeTo ? ' → ' + localTimeTo : '' }}</span>
       </div>
 
@@ -34,27 +34,44 @@
           <span class="time-sep">→</span>
           <input type="time" class="meta-input" v-model="localTimeTo" @change="save" />
         </div>
-        <button class="icon-btn danger small" title="Delete" @click.stop="deleteItem(item.id)">×</button>
+        <button class="icon-btn" title="Delete" @click.stop="deleteItem(item.id)">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3.5 4.5h9M6 4.5V3h4v1.5M6.5 7v5M9.5 7v5M4.5 4.5l.5 8h6l.5-8"/>
+          </svg>
+        </button>
       </div>
 
-      <!-- mobile: expand toggle -->
-      <button class="item-expand-btn" @click="open = !open" :aria-label="open ? 'Collapse' : 'Expand'">
-        {{ open ? '▲' : '▼' }}
+      <!-- mobile: chevron tap target -->
+      <button class="item-chevron" @click="open = !open" :aria-label="open ? 'Collapse' : 'Expand'">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path v-if="!open" d="M5.5 6.5 8 9l2.5-2.5"/>
+          <path v-else d="M5.5 9.5 8 7l2.5 2.5"/>
+        </svg>
       </button>
     </div>
 
     <!-- expanded detail -->
     <div v-if="open" class="item-detail" @click.stop>
 
-      <!-- mobile: full meta in the detail -->
+      <!-- mobile full meta -->
       <div class="item-detail-meta">
-        <input type="date" class="meta-input" v-model="localDate" @change="save" />
-        <div class="time-range">
-          <input type="time" class="meta-input" v-model="localTimeFrom" @change="save" />
-          <span class="time-sep">→</span>
-          <input type="time" class="meta-input" v-model="localTimeTo" @change="save" />
-        </div>
-        <button class="icon-btn danger item-delete-btn" title="Delete" @click.stop="deleteItem(item.id)">×</button>
+        <label class="field-group">
+          <span class="field-label">DATE</span>
+          <input type="date" class="field-input" v-model="localDate" @change="save" />
+        </label>
+        <label class="field-group">
+          <span class="field-label">FROM</span>
+          <input type="time" class="field-input" v-model="localTimeFrom" @change="save" />
+        </label>
+        <label class="field-group">
+          <span class="field-label">TO</span>
+          <input type="time" class="field-input" v-model="localTimeTo" @change="save" />
+        </label>
+        <button class="delete-btn" @click.stop="deleteItem(item.id)" title="Delete task">
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3.5 4.5h9M6 4.5V3h4v1.5M6.5 7v5M9.5 7v5M4.5 4.5l.5 8h6l.5-8"/>
+          </svg>
+        </button>
       </div>
 
       <div class="format-bar">
@@ -66,6 +83,7 @@
         <button @mousedown.prevent="exec('insertUnorderedList')">• list</button>
         <button @mousedown.prevent="exec('insertOrderedList')"># list</button>
       </div>
+
       <div
         ref="editor"
         class="description-editor"
@@ -75,6 +93,7 @@
         @blur="save"
       ></div>
     </div>
+
   </div>
 </template>
 
