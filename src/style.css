@@ -588,186 +588,355 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); }
 
-/* ─── mobile header (hidden on desktop) ─── */
-.mobile-header { display: none; }
+/* ─── mobile-only elements: hidden on desktop ─── */
+.mobile-header    { display: none; }
 .sidebar-backdrop { display: none; }
+.item-date-chip   { display: none; }
+.item-expand-btn  { display: none; }
+.item-detail-meta { display: none; }
+
+/* item-body: just a flex column wrapper inside the row */
+.item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 
 /* ─── mobile ─── */
 @media (max-width: 680px) {
 
-  /* header bar */
+  /* ── base type scale ── */
+  body { font-size: 15px; }
+
+  /* ── fixed top header ── */
   .mobile-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    height: 48px;
-    padding: 0 14px;
+    gap: 0;
+    height: 56px;
+    padding: 0 8px 0 4px;
     border-bottom: 1.5px solid var(--border-heavy);
     background: var(--bg);
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 30;
-    flex-shrink: 0;
   }
 
+  /* hamburger — 44×56 tap area, three rules */
   .hamburger {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    width: 48px;
+    height: 56px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
   }
   .hamburger span {
     display: block;
-    width: 18px;
-    height: 1.5px;
+    width: 22px;
+    height: 2px;
     background: var(--text);
+    border-radius: 1px;
+    transition: opacity 0.15s;
   }
-  .hamburger span:last-child { width: 12px; }
+  .hamburger span:last-child { width: 14px; }
 
   .mobile-title {
     flex: 1;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.01em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding: 0 8px;
   }
 
+  /* SHEETS / CAL pill toggle */
   .mobile-view-toggle {
     display: flex;
-    gap: 0;
-    border: 1px solid var(--border-heavy);
+    border: 1.5px solid var(--border-heavy);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-right: 8px;
+    flex-shrink: 0;
   }
   .mobile-view-toggle button {
     background: none;
     border: none;
-    border-left: 1px solid var(--border-heavy);
+    border-left: 1.5px solid var(--border-heavy);
     font-family: var(--mono);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.12em;
-    padding: 5px 8px;
+    letter-spacing: 0.1em;
+    padding: 0 12px;
+    height: 34px;
     cursor: pointer;
     color: var(--muted);
+    -webkit-tap-highlight-color: transparent;
   }
   .mobile-view-toggle button:first-child { border-left: none; }
-  .mobile-view-toggle button.active { color: var(--accent); background: var(--surface); }
-
-  /* app layout */
-  .app {
-    flex-direction: column;
-    padding-top: 48px; /* reserve space for fixed header */
+  .mobile-view-toggle button.active {
+    color: var(--accent);
+    background: var(--surface);
   }
 
-  /* sidebar: fixed overlay, slides in from left */
+  /* ── layout ── */
+  .app {
+    flex-direction: column;
+    padding-top: 56px;
+  }
+
+  /* ── sidebar: full-width overlay ── */
   .sidebar {
     position: fixed;
-    top: 48px; left: 0; bottom: 0;
+    top: 56px; left: 0; bottom: 0;
     z-index: 25;
-    width: 80vw;
-    max-width: 280px;
-    transform: translateX(-110%);
-    transition: transform 0.2s ease;
-    box-shadow: none;
+    width: 100%;
+    max-width: 100%;
+    transform: translateX(-105%);
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: none;
+    border-bottom: 1.5px solid var(--border-heavy);
   }
   .sidebar.open {
     transform: translateX(0);
-    box-shadow: 4px 0 20px rgba(0,0,0,0.12);
   }
 
   /* backdrop */
   .sidebar-backdrop {
     display: block;
     position: fixed;
-    inset: 48px 0 0 0;
+    inset: 56px 0 0 0;
     z-index: 20;
-    background: rgba(0, 0, 0, 0.28);
+    background: rgba(0, 0, 0, 0.22);
   }
 
-  /* on mobile show sidebar footer but hide the view-toggles row (handled in mobile header) */
+  /* sidebar header bigger */
+  .sidebar-header {
+    height: 52px;
+    padding: 0 20px;
+  }
+  .sidebar-header .label { font-size: 10px; letter-spacing: 0.2em; }
+  .sidebar-header .icon-btn { font-size: 24px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+
+  /* folder + sheet rows bigger */
+  .folder-row {
+    height: 52px;
+    padding: 0 20px;
+    font-size: 14px;
+  }
+  .folder-row .icon-btn { opacity: 1; font-size: 20px; width: 40px; height: 52px; display: flex; align-items: center; justify-content: center; }
+
+  .sheet-row {
+    height: 48px;
+    padding: 0 20px 0 32px;
+    font-size: 13px;
+  }
+  .sheet-row .icon-btn { opacity: 1; font-size: 18px; width: 40px; height: 48px; display: flex; align-items: center; justify-content: center; }
+
+  .new-sheet-btn {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px 0 32px;
+    font-size: 12px;
+    margin: 0;
+  }
+
+  /* settings rows bigger */
+  .settings-row { height: 52px; padding: 0 20px; }
+  .settings-label { font-size: 10px; }
+  .seg { font-size: 12px; padding: 6px 10px; border-radius: 4px; }
+
+  /* hide desktop view toggles (in mobile header instead) */
   .view-toggles { display: none; }
 
-  /* main full width, no fixed padding */
+  /* ── main ── */
   .main {
-    padding: 20px 16px 80px;
+    padding: 24px 18px 100px;
     flex: 1;
     min-width: 0;
   }
 
-  /* sheet view */
+  /* ── sheet header ── */
   .sheet-view { max-width: 100%; }
 
   .sheet-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
-    margin-bottom: 16px;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding-bottom: 14px;
   }
-  .sheet-title { font-size: 18px; }
+  .sheet-title { font-size: 22px; letter-spacing: -0.02em; }
   .sheet-stats { margin-left: 0; }
 
-  /* item rows: stack meta below text */
-  .item-main { flex-wrap: wrap; gap: 8px; }
-
-  .item-text { min-width: 0; flex-basis: calc(100% - 28px); }
-
-  .item-meta {
-    flex-basis: 100%;
-    margin-left: 28px;
-    margin-top: 0;
-    gap: 8px;
-    flex-wrap: wrap;
+  .sheet-description {
+    font-size: 13px;
+    padding: 10px 0 12px;
+    margin-bottom: 16px;
   }
 
-  /* bigger tap targets */
+  /* ── item rows ── */
+
+  /* collapsed row: checkbox + text + date chip only — clean */
+  .item-main {
+    padding: 14px 0;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+  }
+
   .checkbox {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    margin-top: 1px;
+    font-size: 13px;
+  }
+
+  .item-text {
+    flex: 1;
+    font-size: 15px;
+    line-height: 1.4;
+    min-width: 0;
+  }
+
+  /* hide the full meta row in collapsed state on mobile */
+  .item-main .item-meta { display: none; }
+
+  /* show a compact date chip instead */
+  .item-date-chip {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-top: 3px;
+    font-family: var(--mono);
+  }
+  .item-date-chip.has-date { color: var(--accent); }
+
+  /* expand toggle arrow */
+  .item-expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: -4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* expanded detail: show full meta at top */
+  .item-detail {
+    padding: 0 0 16px 38px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .item-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 0 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+    align-items: center;
   }
 
   .meta-input {
-    font-size: 11px;
-    padding: 3px 4px;
-    min-height: 28px;
+    font-size: 13px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    min-height: 38px;
+    color: var(--text);
+  }
+  .meta-input:focus {
+    border-color: var(--accent);
+    background: var(--bg);
+    outline: none;
   }
 
-  /* item detail */
-  .item-detail { padding: 0 0 12px 0; }
+  .time-sep { font-size: 11px; }
 
+  /* format bar scrollable */
   .format-bar {
     overflow-x: auto;
     scrollbar-width: none;
     flex-wrap: nowrap;
+    padding: 8px 0;
+    gap: 6px;
   }
   .format-bar::-webkit-scrollbar { display: none; }
-  .format-bar button { padding: 4px 8px; font-size: 12px; white-space: nowrap; }
+  .format-bar button {
+    padding: 6px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+    min-height: 36px;
+  }
+  .format-bar .sep { margin: 0 4px; }
 
-  /* calendar */
+  .description-editor { font-size: 14px; min-height: 80px; }
+
+  /* delete button in detail, not cluttering the row */
+  .item-delete-btn {
+    margin-left: auto;
+    font-size: 20px;
+    width: 44px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── add item button ── */
+  .add-item-btn {
+    margin-top: 12px;
+    padding: 16px 0;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    width: 100%;
+    text-align: left;
+  }
+
+  /* ── calendar ── */
   .calendar-view { max-width: 100%; }
 
+  .cal-header { margin-bottom: 16px; padding-bottom: 14px; }
+  .cal-title { font-size: 15px; }
+  .today-btn { font-size: 10px; padding: 6px 10px; }
+  .icon-btn.cal-nav { width: 44px; height: 44px; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+
   .cal-cell {
-    min-height: 52px;
-    padding: 4px 4px;
+    min-height: 58px;
+    padding: 5px 4px;
   }
-  .day-num { font-size: 10px; margin-bottom: 2px; }
-  .dot { width: 5px; height: 5px; }
+  .day-num { font-size: 12px; margin-bottom: 3px; }
+  .dot { width: 6px; height: 6px; }
 
-  /* day panel */
-  .day-panel { margin-top: 16px; }
+  .day-panel { margin-top: 20px; }
+  .day-panel-header { margin-bottom: 14px; }
+  .day-item { padding: 12px 0; gap: 12px; }
+  .day-item-text { font-size: 15px; }
+  .day-item-meta { font-size: 11px; }
 
-  /* add item btn bigger */
-  .add-item-btn {
-    padding: 12px 0;
-    font-size: 12px;
-    width: 100%;
-  }
-
-  /* icon buttons bigger tap area */
-  .icon-btn { padding: 4px 6px; font-size: 18px; }
+  /* ── misc ── */
+  .empty-state { height: 160px; }
+  .icon-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 }
